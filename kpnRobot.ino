@@ -2,8 +2,8 @@
 ///////////////////////////////
 #define L analog(4)
 #define R analog(5)
-#define ref_L 525
-#define ref_R 525
+#define ref_L 592
+#define ref_R 592
 unsigned int PG = 0;
 ////////////////////////////////
 
@@ -37,7 +37,7 @@ void TL90()
   while (L <= ref_L) {
     SL(60);
   }
-  pause(200);
+  pause(100);
 }
 
 void TR90()
@@ -50,7 +50,7 @@ void TR90()
   while (R <= ref_R) {
     SR(80);
   }
-  pause(200);
+  pause(100);
 }
 
 void FFF() //เจอแยกเดินตรง
@@ -62,8 +62,8 @@ void FFF() //เจอแยกเดินตรง
   beep();
 
   ///// ปรับจนวิ่งผ่านแยกไป
-  FD(20);
-  delay(200);
+  FD(50);
+  delay(100);
 }
 
 void LLL() //เจอแยกเลี้ยวซ้าย
@@ -73,7 +73,7 @@ void LLL() //เจอแยกเลี้ยวซ้าย
   }
   pause(100);
   beep();
-  FD(40); delay(400); pause(1000);
+  FD(50); delay(100);
   /////
   TL90();
 }
@@ -85,13 +85,29 @@ void RRR() //เจอแยกเลี้ยวขวา
   }
   pause(100);
   beep();
-  FD(40); delay(400); pause(1000);
+  FD(50); delay(100);
   /////
-  TL90();
+  TR90();
 }
+
+void FFK() //เจอแยกคีบวัตถุ
+{
+  while (L > ref_L || R > ref_R) {
+    trackLine(); // แท็กเส้น จนกว่าเจอ "แยก"
+  }
+  pause(100);
+  beep();
+
+  /////ถอยหลังจนได้ระยะ
+  while(sonar()<9 || sonar()>30){
+  BK(50);
+  }
+  pause(100);
+  handKeep();
+}
+
 //////////////////////////
-//NOTE 
-//servo-1 คีบ 70 กาง 100
+//servo-1 คีบ 65 กาง 100
 //servo-2 วาง 0 ยก 80
 void handSet()
 {
@@ -100,7 +116,6 @@ void handSet()
 }
 void handDeploy()
 {
-
   servo(2, 0); delay(300); //วาง
   servo(1, 100); delay(300); //กาง
   servo(2, 80); delay(300); //ยก
@@ -108,10 +123,10 @@ void handDeploy()
 
 void handKeep()
 {
-  servo(1, 100); delay(1000); //กาง
-  servo(2, 00); delay(1000); //วาง
-  servo(1, 70); delay(1000); //คีบ
-  servo(2, 80); delay(1000); //ยก
+  servo(1, 100); delay(300); //กาง
+  servo(2, 00); delay(300); //วาง
+  servo(1, 65); delay(300); //คีบ
+  servo(2, 80); delay(300); //ยก
 }
 //////////////////////
 void setServo(unsigned int chanel)
@@ -126,12 +141,27 @@ void readSensor()
 {
   glcd(3, 1, "L: %d   ", L);
   glcd(4, 1, "R: %d   ", R);
+  glcd(5,1,"Sonar: %d    ",sonar());
 }
+
+///////////////////////////////
+///////MAIN PROGRAM///////////
+/////////////////////////////
+
 void setup() {
   XIO();
+  handSet();
   OK();
+
+  FFF();
+  RRR();
+  FFF();
+  FFF();
+  FFK();
+  pause(2000);
+ 
 }
 
 void loop() {
-readSensor();
+  //readSensor();
 }
